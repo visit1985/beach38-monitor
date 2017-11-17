@@ -9,3 +9,5 @@ Zip the content of this folder and deploy it as an AWS Lambda with the following
     * SLACK\_URL
     * SLACK\_CHANNEL
 
+To schedule the Lambda for periodic execution, create a CloudWatch Event Rule with an appropriate [cron expression](http://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html) (e.g. `cron(0 8 ? * MON-FRI *)`).
+
