@@ -19,8 +19,10 @@ forecast = 7
 watched_ranges = ['17:00 - 19:00 Uhr', '19:00 - 21:00 Uhr']
 
 # let the magic begin
+
 slack_url = os.environ['SLACK_URL']
 slack_channel = os.environ['SLACK_CHANNEL']
+
 def lambda_handler(event, context):
     available_courts = []
     for i in range(forecast):
@@ -46,10 +48,11 @@ def lambda_handler(event, context):
                                     )
                                 )
 
-    slack_message = {
-        'channel': slack_channel,
-        'text': '\n'.join(available_courts)
-    }
+    if len(available_courts) > 0:
+        slack_message = {
+            'channel': slack_channel,
+            'text': '\n'.join(available_courts)
+        }
 
-    requests.post(slack_url, json=json.dumps(slack_message))
+        requests.post(slack_url, json=json.dumps(slack_message))
 
