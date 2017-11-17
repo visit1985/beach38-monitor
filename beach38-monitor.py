@@ -1,10 +1,10 @@
 # native libs
 from datetime import datetime, timedelta
 import json
-import requests
 import os
 
 # custom libs
+import requests
 from BeautifulSoup import BeautifulSoup
 
 # court booking url
@@ -48,11 +48,15 @@ def lambda_handler(event, context):
                                     )
                                 )
 
+    print 'available courts:', available_courts
+
     if len(available_courts) > 0:
         slack_message = {
             'channel': slack_channel,
             'text': '\n'.join(available_courts)
         }
 
-        requests.post(slack_url, json=json.dumps(slack_message))
+        print 'sending message to slack...'
+        r = requests.post(slack_url, data=json.dumps(slack_message), headers={'Content-type': 'application/json'})
+        print 'status code:', r.status_code
 
