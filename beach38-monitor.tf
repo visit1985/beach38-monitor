@@ -15,11 +15,12 @@ data "archive_file" "beach38_monitor" {
 
 resource "aws_lambda_function" "beach38_monitor" {
   function_name = "beach38-monitor-lambda"
-  handler = "beach38-monitor.lambda_handler"
+  handler = "beach38_monitor.lambda_handler"
   role = "${aws_iam_role.beach38_monitor.arn}"
   runtime = "python2.7"
   timeout = 30
   filename = "${path.module}/.target/beach38-monitor-lambda.zip"
+  source_code_hash = "${data.archive_file.beach38_monitor.output_base64sha256}"
   environment {
     variables {
       SLACK_URL = "${var.slack_url}"

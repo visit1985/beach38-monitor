@@ -10,7 +10,7 @@ Then, run [terraform](https://www.terraform.io) from the root directory of this 
 Zip the content of the lambda folder and deploy it as an AWS Lambda with the following parameters:
 
 * **Runtime:** `Python 2.7`
-* **Handler:** `beach38-monitor.lambda_handler`
+* **Handler:** `beach38_monitor.lambda_handler`
 * **Timeout:** `30 sec`
 * **Environment variables:**
     * `SLACK_URL`
