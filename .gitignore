@@ -1,0 +1,5 @@
+.idea
+.target
+.terraform
+terraform.tfstate*
+variables.tf

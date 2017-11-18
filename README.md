@@ -1,6 +1,13 @@
 # Beach38° Court Reservations Monitor Lambda
 
-Zip the content of this folder and deploy it as an AWS Lambda with the following parameters:
+## Deployment via Terraform
+
+Create and adapt `variables.tf` from `variables.tf.example` in the root directory of this project.
+Then, run [terraform](https://www.terraform.io) from the root directory of this project.
+
+## Manual Deployment
+
+Zip the content of the lambda folder and deploy it as an AWS Lambda with the following parameters:
 
 * **Runtime:** `Python 2.7`
 * **Handler:** `beach38-monitor.lambda_handler`
@@ -10,4 +17,3 @@ Zip the content of this folder and deploy it as an AWS Lambda with the following
     * `SLACK_CHANNEL`
 
 To schedule the Lambda for periodic execution, create a CloudWatch Event Rule with an appropriate [cron expression](http://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html) e.g. `cron(0 8 ? * MON-FRI *)`.
-

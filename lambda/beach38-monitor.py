@@ -12,7 +12,7 @@ from BeautifulSoup import BeautifulSoup
 # param 2: date (YYYY-MM-DD)
 beach38_url = 'https://ssl.forumedia.eu/beach38-courtbuchung.de/reservations.php?action=showRevervations&type_id={}&date={}'
 
-# forcast for n days in future
+# forecast for n days in future
 forecast = 7
 
 # watched time ranges (string)
@@ -23,6 +23,7 @@ watched_ranges = ['17:00 - 19:00 Uhr', '19:00 - 21:00 Uhr']
 slack_url = os.environ['SLACK_URL']
 slack_channel = os.environ['SLACK_CHANNEL']
 
+
 def lambda_handler(event, context):
     available_courts = []
     for i in range(forecast):
@@ -30,14 +31,14 @@ def lambda_handler(event, context):
         for court_type in range(2):
             response = requests.get(beach38_url.format(court_type + 1, date.strftime('%Y-%m-%d')))
             html = BeautifulSoup(response.text)
-            for table in html.body.findAll('table', attrs={'class':'areaPeriods'}):
-                court_name = table.find('th').text.encode('ascii',errors='ignore')
+            for table in html.body.findAll('table', attrs={'class': 'areaPeriods'}):
+                court_name = table.find('th').text.encode('ascii', errors='ignore')
                 for row in table.findAll('tr'):
                     cell = row.find('td')
                     if cell:
-                        current_range = cell.text.encode('ascii',errors='ignore')
+                        current_range = cell.text.encode('ascii', errors='ignore')
                         if current_range in watched_ranges:
-                            court_status = dict(cell.attrs).get('class','')
+                            court_status = dict(cell.attrs).get('class', '')
                             if court_status == 'avaliable':
                                 available_courts.append(
                                     '{} {} on {} {}'.format(
@@ -59,4 +60,3 @@ def lambda_handler(event, context):
         print 'sending message to slack...'
         r = requests.post(slack_url, data=json.dumps(slack_message), headers={'Content-type': 'application/json'})
         print 'status code:', r.status_code
-

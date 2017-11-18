@@ -1,0 +1,14 @@
+variable "region" {
+  description = "The AWS Region to use for the Lambda."
+  default = "eu-central-1"
+}
+
+variable "slack_url" {
+  description = "The Slack Webhook URL to post to."
+  default = "https://hooks.slack.com/services/A1B2C3D4E/5F6G7H8I9/a1B2c3D4e5F6g7H8i9J10k11"
+}
+
+variable "slack_channel" {
+  description = "The Slack channel to push to."
+  default = "#beach38"
+}
