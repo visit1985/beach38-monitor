@@ -76,20 +76,21 @@ def lambda_handler(event, context):
                                 # or the courts status changed from available to something else
                                 notifications.append(notification)
 
-                            if 'Item' in item and item['Item']['court_state'] != court_status:
-                                # if the status changed update it in our dynamodb table
-                                print "update:", date.strftime('%d.%m.%Y'), current_range, court_name, court_status
-                                dynamotable.update_item(
-                                    Key={
-                                        'court_name': court_name,
-                                        'reservation_time': '{} {}'.format(date.strftime('%d.%m.%Y'), current_range)
-                                    },
-                                    UpdateExpression="set court_state = :s",
-                                    ExpressionAttributeValues={
-                                        ':s': court_status
-                                    },
-                                    ReturnValues="UPDATED_NEW"
-                                )
+                            if 'Item' in item:
+                                if item['Item']['court_state'] != court_status:
+                                    # if the status changed update it in our dynamodb table
+                                    print "update:", date.strftime('%d.%m.%Y'), current_range, court_name, court_status
+                                    dynamotable.update_item(
+                                        Key={
+                                            'court_name': court_name,
+                                            'reservation_time': '{} {}'.format(date.strftime('%d.%m.%Y'), current_range)
+                                        },
+                                        UpdateExpression="set court_state = :s",
+                                        ExpressionAttributeValues={
+                                            ':s': court_status
+                                        },
+                                        ReturnValues="UPDATED_NEW"
+                                    )
 
                             else:
                                 # if it doesn't exist already, insert the court reservation into our dynamodb table
