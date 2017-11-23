@@ -128,6 +128,6 @@ resource "aws_dynamodb_table" "beach38_monitor" {
     attribute_name = "retention"
   }
 
-  read_capacity = 5
-  write_capacity = 5
+  read_capacity = 1
+  write_capacity = 1
 }
