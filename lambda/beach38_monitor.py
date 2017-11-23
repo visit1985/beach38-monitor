@@ -62,7 +62,7 @@ def lambda_handler(event, context):
                             notification = '{} {} on {} {}'.format(
                                 court_name,
                                 court_status,
-                                date.strftime('%d.%m.%Y'),
+                                date.strftime('%a %d.%m.%Y'),
                                 current_range
                             )
 
