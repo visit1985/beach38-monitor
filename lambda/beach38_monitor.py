@@ -31,7 +31,7 @@ def lambda_handler(event, context):
     dynamodb = boto3.resource('dynamodb')
     dynamotable = dynamodb.Table(dynamodb_table)
 
-    available_courts = []
+    notifications = []
     for i in range(forecast):
         date = datetime.now().replace(hour=23, minute=59, second=59, microsecond=0) + timedelta(days=i+1)
         ttl = decimal.Decimal(date.strftime('%s'))
@@ -52,24 +52,33 @@ def lambda_handler(event, context):
                         if current_range in watched_ranges:
                             court_status = dict(cell.attrs).get('class', '')
 
-                            if court_status == 'avaliable':
-                                available_courts.append(
-                                    '{} {} on {} {}'.format(
-                                        court_name,
-                                        court_status,
-                                        date.strftime('%d.%m.%Y'),
-                                        current_range
-                                    )
-                                )
-
+                            # see if we already stored this combination of court_name and reservation_time
                             item = dynamotable.get_item(Key={
                                 'court_name': court_name,
                                 'reservation_time': '{} {}'.format(date.strftime('%d.%m.%Y'), current_range)
                             })
 
-                            if 'Item' in item and item['Item']['court_state'] != court_status:
-                                print "updating reservation", item['Item']['court_state']
+                            # build the notification string
+                            notification = '{} {} on {} {}'.format(
+                                court_name,
+                                court_status,
+                                date.strftime('%d.%m.%Y'),
+                                current_range
+                            )
 
+                            if court_status == 'avaliable':
+                                if 'Item' not in item or item['Item']['court_state'] != 'avaliable':
+                                    # either the court reservation was never stored and is available,
+                                    # or the courts status changed to available
+                                    notifications.append(notification)
+
+                            if 'Item' in item and item['Item']['court_state'] == 'avaliable' and court_status != 'avaliable':
+                                # or the courts status changed from available to something else
+                                notifications.append(notification)
+
+                            if 'Item' in item and item['Item']['court_state'] != court_status:
+                                # if the status changed update it in our dynamodb table
+                                print "update:", date.strftime('%d.%m.%Y'), current_range, court_name, court_status
                                 dynamotable.update_item(
                                     Key={
                                         'court_name': court_name,
@@ -83,6 +92,8 @@ def lambda_handler(event, context):
                                 )
 
                             else:
+                                # if it doesn't exist already, insert the court reservation into our dynamodb table
+                                print "insert:", court_name, date.strftime('%d.%m.%Y'), current_range, court_status
                                 dynamotable.put_item(Item={
                                     'court_name': court_name,
                                     'reservation_time': '{} {}'.format(date.strftime('%d.%m.%Y'), current_range),
@@ -90,14 +101,14 @@ def lambda_handler(event, context):
                                     'retention': ttl
                                 })
 
-    print 'available courts:', available_courts
+    print 'notifications:', notifications
 
-    if len(available_courts) > 0:
+    if len(notifications) > 0:
         slack_message = {
             'channel': slack_channel,
-            'text': '\n'.join(available_courts)
+            'text': '\n'.join(notifications)
         }
 
-        print 'sending message to slack...'
+        print 'sending notifications to slack...'
         r = requests.post(slack_url, data=json.dumps(slack_message), headers={'Content-type': 'application/json'})
-        print 'status code:', r.status_code
+        print 'return code:', r.status_code
