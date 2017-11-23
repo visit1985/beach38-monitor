@@ -18,13 +18,14 @@ resource "aws_lambda_function" "beach38_monitor" {
   handler = "beach38_monitor.lambda_handler"
   role = "${aws_iam_role.beach38_monitor.arn}"
   runtime = "python2.7"
-  timeout = 30
+  timeout = 60
   filename = "${path.module}/.target/beach38-monitor-lambda.zip"
   source_code_hash = "${data.archive_file.beach38_monitor.output_base64sha256}"
   environment {
     variables {
       SLACK_URL = "${var.slack_url}"
       SLACK_CHANNEL = "${var.slack_channel}"
+      DYNAMODB_TABLE = "${aws_dynamodb_table.beach38_monitor.name}"
     }
   }
 }
@@ -92,4 +93,41 @@ data "aws_iam_policy_document" "beach38_monitor_policy" {
       "${aws_cloudwatch_log_group.beach38_monitor.arn}"
     ]
   }
+  statement {
+    sid = "AllowReadWriteToDynamoDB"
+    effect = "Allow"
+    actions = [
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:UpdateItem"
+    ]
+    resources = [
+      "${aws_dynamodb_table.beach38_monitor.arn}"
+    ]
+  }
+}
+
+resource "aws_dynamodb_table" "beach38_monitor" {
+  name = "beach38-monitor-table"
+
+  attribute {
+    name = "court_name"
+    type = "S"
+  }
+
+  attribute {
+    name = "reservation_time"
+    type = "S"
+  }
+
+  hash_key = "court_name"
+  range_key = "reservation_time"
+
+  ttl {
+    enabled = true
+    attribute_name = "retention"
+  }
+
+  read_capacity = 5
+  write_capacity = 5
 }
