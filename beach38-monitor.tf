@@ -41,7 +41,7 @@ resource "aws_lambda_permission" "beach38_monitor" {
 resource "aws_cloudwatch_event_rule" "beach38_monitor" {
   name = "beach38-monitor-trigger"
   description = "triggers beach38-monitor-lambda"
-  schedule_expression = "cron(0,30 07-23 * * ? *)"
+  schedule_expression = "cron(10,25,40,55 07-23 * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "beach38_monitor" {

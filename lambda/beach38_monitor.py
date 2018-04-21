@@ -15,7 +15,7 @@ from BeautifulSoup import BeautifulSoup
 beach38_url = 'https://ssl.forumedia.eu/beach38-courtbuchung.de/reservations.php?action=showRevervations&type_id={}&date={}'
 
 # forecast for n days in future
-forecast = 7
+forecast = 10
 
 # watched time ranges (string)
 watched_timeslots = ['19:00 - 21:00 Uhr']
